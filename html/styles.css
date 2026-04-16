@@ -1,6 +1,4 @@
-/* =========================================
-   1. GLOBAL VARIABLES & RESET
-   ========================================= */
+
 :root {
   --bg-light: #fef6ec;
   --bg-dark: #000000;
@@ -23,13 +21,10 @@ body {
   background-color: var(--bg-light); 
 }
 
-/* Typography Utility Classes */
+
 .font-jersey15 { font-family: 'Jersey 15', sans-serif; }
 .font-jersey25 { font-family: 'Jersey 25', sans-serif; }
 
-/* =========================================
-   2. SHARED LAYOUT & COMPONENTS
-   ========================================= */
 .container { 
   max-width: 1280px; 
   margin: 0 auto; 
@@ -41,7 +36,6 @@ section {
   padding: 80px 100px; 
 }
 
-/* Header */
 .top-header { 
   padding: 20px 80px; 
   background: var(--bg-light); 
@@ -57,7 +51,6 @@ section {
 }
 .top-header h1 span { color: var(--accent); }
 
-/* Navigation */
 .main-nav { 
   background: var(--bg-dark); 
   color: var(--text-light); 
@@ -76,7 +69,6 @@ section {
 .nav-icons { display: flex; gap: 24px; }
 .nav-icons img { width: 24px; cursor: pointer; }
 
-/* Footer */
 .footer { 
   background: var(--bg-dark); 
   color: #f6f4e8; 
@@ -90,7 +82,6 @@ section {
 .footer ul { list-style-type: disc; padding-left: 30px; font-size: 20px; }
 .footer ul li { margin-bottom: 8px; }
 
-/* Buttons */
 .btn { 
   background: var(--bg-dark); 
   color: var(--text-light); 
@@ -103,20 +94,15 @@ section {
   font-family: inherit;
 }
 
-/* Shared Cards (Used on Index & Search) */
 .card { display: flex; flex-direction: column; gap: 8px; display: flex; }
 .card img { width: 100%; border-radius: 16px; object-fit: cover; }
 .card h5 { font-size: 24px; font-weight: 600; line-height: 1.1; margin-top: 8px; }
 .card p { font-size: 18px; font-weight: 500; color: var(--text-muted); flex-grow: 1; }
 .card .cta { font-weight: 600; color: var(--text-dark); margin-top: auto; display: block; padding-top: 8px; }
 
-/* Card Image Aspect Ratios */
 .card.portrait img { aspect-ratio: 3/4; }
 .card.landscape img { aspect-ratio: 4/3; }
 
-/* =========================================
-   3. PAGE: INDEX (HOME)
-   ========================================= */
 .about { display: flex; flex-direction: column; gap: 24px; }
 .about h3 { font-size: 48px; font-weight: 700; line-height: 1.2; }
 .about p { font-size: 18px; color: var(--text-muted); font-weight: 500; }
@@ -129,9 +115,6 @@ section {
 
 .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; padding-bottom: 120px; }
 
-/* =========================================
-   4. PAGE: TEAM
-   ========================================= */
 .team-hero { display: flex; align-items: center; gap: 64px; padding: 100px 100px 60px; }
 .team-hero img { width: 262px; object-fit: contain; }
 .team-hero h2 { font-size: 64px; font-weight: 700; line-height: 1.1; text-transform: uppercase; }
@@ -142,9 +125,6 @@ section {
 .member-card h5 { font-size: 24px; font-weight: 600; line-height: 1; }
 .member-card p { font-size: 18px; font-weight: 500; color: var(--text-muted); }
 
-/* =========================================
-   5. PAGE: SEARCH
-   ========================================= */
 .search-panel { padding: 60px 100px; display: flex; flex-direction: column; gap: 32px; }
 .search-row { display: flex; gap: 24px; flex-wrap: wrap; }
 .input-group { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 200px; }
@@ -167,9 +147,6 @@ section {
 
 .results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; padding: 60px 100px 120px; }
 
-/* =========================================
-   6. PAGE: LOGIN
-   ========================================= */
 .login-section { display: flex; justify-content: center; align-items: center; padding: 100px 20px; }
 .login-card {
   background: var(--text-light); border: 1px solid var(--bg-dark); padding: 48px; border-radius: 16px;
