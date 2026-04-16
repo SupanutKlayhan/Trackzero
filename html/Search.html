@@ -35,40 +35,49 @@
     </nav>
 
     <section class="search-panel">
-      <div class="search-row">
+  <div class="search-row">
+    <div class="input-group">
+      <label>Name</label>
+      <input type="text" id="search-name" placeholder="Search albums...">
+    </div>
         <div class="input-group">
-          <label>Name</label>
-          <input type="text" placeholder="Search albums...">
+            <label>Genre</label>
+            <select id="filter-genre">
+              <option value="all">All</option>
+              <option value="Rock">Rock</option>
+              <option value="Pop">Pop</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Artist</label>
+            <select id="filter-artist">
+              <option value="all">All</option>
+              <option value="The Objects">The Objects</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Year</label>
+            <select id="filter-year">
+              <option value="all">All</option>
+              <option value="2024">2024</option>
+            </select>
         </div>
-        <div class="input-group">
-          <label>Genre</label>
-          <select><option>All</option></select>
-        </div>
-        <div class="input-group">
-          <label>Artist</label>
-          <select><option>All</option></select>
-        </div>
-        <div class="input-group">
-          <label>Year</label>
-          <select><option>All</option></select>
-        </div>
-      </div>
-      
-      <div class="search-row" style="justify-content: space-between; align-items: center;">
-        <div class="format-toggles">
-          <label style="font-weight: 600; margin-right: 8px;">Format:</label>
-          <span class="toggle active">All</span>
-          <span class="toggle">CD</span>
-          <span class="toggle">Cassette</span>
-          <span class="toggle">Vinyl</span>
-          <span class="toggle">Digital Albums</span>
-        </div>
-        <div class="search-actions">
-          <button class="btn-clear font-jersey15">CLEAR</button>
-          <button class="btn-search font-jersey15">SEARCH</button>
-        </div>
-      </div>
-    </section>
+  </div>
+  
+  <div class="search-row" style="justify-content: space-between; align-items: center;">
+    <div class="format-toggles" id="format-filters">
+      <label style="font-weight: 600; margin-right: 8px;">Format:</label>
+      <span class="toggle active" data-format="all">All</span>
+      <span class="toggle" data-format="CD">CD</span>
+      <span class="toggle" data-format="Cassette">Cassette</span>
+      <span class="toggle" data-format="Vinyl">Vinyl</span>
+    </div>
+    <div class="search-actions">
+      <button id="btn-clear" class="btn-clear font-jersey15">CLEAR</button>
+      <button id="btn-search" class="btn-search font-jersey15">SEARCH</button>
+    </div>
+  </div>
+</section>
 
     <div class="marquee">
       <p>Search Result: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Search Result: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Search Result:</p>
@@ -122,6 +131,57 @@
         <li>Our team members</li>
       </ul>
     </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const searchBtn = document.getElementById('btn-search');
+        const clearBtn = document.getElementById('btn-clear');
+        const nameInput = document.getElementById('search-name');
+        const cards = document.querySelectorAll('.card');
+        const toggles = document.querySelectorAll('.toggle');
+        
+        let activeFormat = 'all';
+
+        // Handle Format Toggle Clicks
+        toggles.forEach(toggle => {
+          toggle.addEventListener('click', () => {
+            toggles.forEach(t => t.classList.remove('active'));
+            toggle.classList.add('active');
+            activeFormat = toggle.getAttribute('data-format');
+          });
+        });
+
+        // Search Function
+        const performSearch = () => {
+          const query = nameInput.value.toLowerCase();
+
+          cards.forEach(card => {
+            const cardName = card.getAttribute('data-name').toLowerCase();
+            const cardFormat = card.getAttribute('data-format');
+
+            const matchesName = cardName.includes(query);
+            const matchesFormat = (activeFormat === 'all' || cardFormat === activeFormat);
+
+            if (matchesName && matchesFormat) {
+              card.style.display = 'block';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        };
+
+        searchBtn.addEventListener('click', performSearch);
+
+        // Clear Function
+        clearBtn.addEventListener('click', () => {
+          nameInput.value = '';
+          activeFormat = 'all';
+          toggles.forEach(t => t.classList.remove('active'));
+          toggles[0].classList.add('active'); // Reset to "All"
+          cards.forEach(card => card.style.display = 'block');
+        });
+      });
+    </script>
 
   </div>
 </body>

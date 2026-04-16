@@ -3,10 +3,15 @@ const express = require('express');
 const path = require('path');
 const port =3300;
 const app = express();
+
 app.use(express.static(path.join(__dirname, 'html')));
 const router = express.Router();
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
+
+const cp = require("cookie-parser");
+router.use(cp()); 
+
 app.use(router);
 
 router.get('/',(req,res) =>{
@@ -35,6 +40,12 @@ router.get('/Manage-Products', (req, res) => {
 router.get('/Detail', (req, res) => {
     console.log('Request at /Detail');
     res.sendFile(path.join(`${__dirname}/html/Detail.html`));
+});
+router.get('/login-cookie', (req, res) => {
+    console.log('Request at /login-cookie');
+    res.sendFile(path.join(`${__dirname}/html/Home.html`));
+    res.cookie('Admin!', 'Allow to edit and manage');
+    console.log('Login Success!!!');
 });
 app.listen(port, () => {
 console.log(`Server listening on port: ${port}`)
