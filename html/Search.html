@@ -40,47 +40,43 @@
     </nav>
 
     <section class="search-panel">
-  <div class="search-row">
-    <div class="input-group">
-      <label>Name</label>
-      <input type="text" id="search-name" placeholder="Search albums...">
-    </div>
+      <div class="search-row">
         <div class="input-group">
-            <label>Genre</label>
-            <select id="filter-genre">
-              <option value="all">All</option>
-              <option value="Rock">Rock</option>
-              <option value="Pop">Pop</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label>Artist</label>
-            <select id="filter-artist">
-              <option value="all">All</option>
-              <option value="The Objects">The Objects</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label>Year</label>
-            <select id="filter-year">
-              <option value="all">All</option>
-              <option value="2024">2024</option>
-            </select>
+          <label>Name</label>
+          <input type="text" id="search-name" placeholder="Search albums...">
+        </div>
+        <div class="input-group">
+          <label>Genre</label>
+          <select id="filter-genre">
+            <option value="all">All</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Artist</label>
+          <select id="filter-artist">
+            <option value="all">All</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Year</label>
+          <select id="filter-year">
+            <option value="all">All</option>
+          </select>
         </div>
       </div>
       
       <div class="search-row search-row-controls">
         <div class="format-toggles">
           <label class="format-label">Format:</label>
-          <span class="toggle active">All</span>
-          <span class="toggle">CD</span>
-          <span class="toggle">Cassette</span>
-          <span class="toggle">Vinyl</span>
-          <span class="toggle">Digital Albums</span>
+          <span class="toggle active" data-format="all">All</span>
+          <span class="toggle" data-format="CD">CD</span>
+          <span class="toggle" data-format="Cassette">Cassette</span>
+          <span class="toggle" data-format="Vinyl">Vinyl</span>
+          <span class="toggle" data-format="Digital Albums">Digital Albums</span>
         </div>
         <div class="search-actions">
-          <button class="btn-clear font-jersey15">CLEAR</button>
-          <button class="btn-search font-jersey15">SEARCH</button>
+          <button id="btn-clear" type="button" class="btn-clear font-jersey15">CLEAR</button>
+          <button id="btn-search" type="button" class="btn-search font-jersey15">SEARCH</button>
         </div>
       </div>
     </section>
@@ -89,45 +85,10 @@
       <p>Search Result: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Search Result: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Search Result:</p>
     </div>
 
-    <section class="results-grid">
-      <div class="card">
-        <img src="./track zero (Copy) - Search_files/46315b776968443cb9c2a269ecf7a13694dcc07a.png" alt="Product">
-        <h5>This outstanding object</h5>
-        <p>Call out a feature, benefit, or value of your site or product that can stand on its own.</p>
-        <span class="cta">Call to action →</span>
-      </div>
-      <div class="card">
-        <img src="./track zero (Copy) - Search_files/d1e67e956b7f18428709d5a71f418e1d47841d09.png" alt="Product">
-        <h5>This astounding article</h5>
-        <p>Cards are a great way to organize content in a collection—products, case studies, services, and more.</p>
-        <span class="cta">Call to action →</span>
-      </div>
-      <div class="card">
-        <img src="./track zero (Copy) - Search_files/58532aa28603504c46e2e6169d940f0fe52fcd81.png" alt="Product">
-        <h5>This brilliant bit</h5>
-        <p>Add more cards to this little stack to build out a grid of whatever size and shape you need.</p>
-        <span class="cta">Call to action →</span>
-      </div>
-      
-      <div class="card">
-        <img src="./track zero (Copy) - Search_files/46315b776968443cb9c2a269ecf7a13694dcc07a.png" alt="Product">
-        <h5>This outstanding object</h5>
-        <p>Call out a feature, benefit, or value of your site or product that can stand on its own.</p>
-        <span class="cta">Call to action →</span>
-      </div>
-      <div class="card">
-        <img src="./track zero (Copy) - Search_files/d1e67e956b7f18428709d5a71f418e1d47841d09.png" alt="Product">
-        <h5>This astounding article</h5>
-        <p>Cards are a great way to organize content in a collection—products, case studies, services, and more.</p>
-        <span class="cta">Call to action →</span>
-      </div>
-      <div class="card">
-        <img src="./track zero (Copy) - Search_files/58532aa28603504c46e2e6169d940f0fe52fcd81.png" alt="Product">
-        <h5>This brilliant bit</h5>
-        <p>Add more cards to this little stack to build out a grid of whatever size and shape you need.</p>
-        <span class="cta">Call to action →</span>
-      </div>
+    <section class="results-grid" id="results-grid">
     </section>
+
+    <p id="search-message" style="margin: 16px 0 0; text-align: center;"></p>
 
     <footer class="footer">
       <h5 class="font-jersey25">Contact us</h5>
@@ -140,52 +101,151 @@
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-        const searchBtn = document.getElementById('btn-search');
-        const clearBtn = document.getElementById('btn-clear');
+        const API_BASE = window.TRACKZERO_API_BASE || 'http://localhost:3300';
         const nameInput = document.getElementById('search-name');
-        const cards = document.querySelectorAll('.card');
-        const toggles = document.querySelectorAll('.toggle');
-        
+        const genreSelect = document.getElementById('filter-genre');
+        const artistSelect = document.getElementById('filter-artist');
+        const yearSelect = document.getElementById('filter-year');
+        const searchButton = document.getElementById('btn-search');
+        const clearButton = document.getElementById('btn-clear');
+        const resultsGrid = document.getElementById('results-grid');
+        const messageElement = document.getElementById('search-message');
+        const formatToggles = document.querySelectorAll('.toggle');
+
         let activeFormat = 'all';
 
-        // Handle Format Toggle Clicks
-        toggles.forEach(toggle => {
-          toggle.addEventListener('click', () => {
-            toggles.forEach(t => t.classList.remove('active'));
-            toggle.classList.add('active');
-            activeFormat = toggle.getAttribute('data-format');
-          });
-        });
+        const setMessage = (text, color) => {
+          messageElement.textContent = text;
+          messageElement.style.color = color;
+        };
 
-        // Search Function
-        const performSearch = () => {
-          const query = nameInput.value.toLowerCase();
+        const fillSelectWithValues = (selectElement, values) => {
+          while (selectElement.options.length > 1) {
+            selectElement.remove(1);
+          }
 
-          cards.forEach(card => {
-            const cardName = card.getAttribute('data-name').toLowerCase();
-            const cardFormat = card.getAttribute('data-format');
-
-            const matchesName = cardName.includes(query);
-            const matchesFormat = (activeFormat === 'all' || cardFormat === activeFormat);
-
-            if (matchesName && matchesFormat) {
-              card.style.display = 'block';
-            } else {
-              card.style.display = 'none';
-            }
+          values.forEach((value) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            selectElement.appendChild(option);
           });
         };
 
-        searchBtn.addEventListener('click', performSearch);
+        const renderProducts = (products) => {
+          resultsGrid.innerHTML = '';
 
-        // Clear Function
-        clearBtn.addEventListener('click', () => {
-          nameInput.value = '';
-          activeFormat = 'all';
-          toggles.forEach(t => t.classList.remove('active'));
-          toggles[0].classList.add('active'); // Reset to "All"
-          cards.forEach(card => card.style.display = 'block');
+          if (products.length === 0) {
+            setMessage('No products found.', '#b00020');
+            return;
+          }
+
+          setMessage(`Found ${products.length} result(s).`, '#0a7d2a');
+
+          products.forEach((product) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            const description = product.description || 'No description available.';
+            const imageUrl = product.imageUrl || 'https://via.placeholder.com/600x400?text=Track+Zero';
+
+            card.innerHTML = `
+              <img src="${imageUrl}" alt="${product.name}">
+              <h5>${product.name}</h5>
+              <p>${description}</p>
+              <p><strong>${product.artist}</strong> • ${product.genre} • ${product.format} • ${product.year}</p>
+              <a class="cta" href="/Detail?id=${product.id}">View details →</a>
+            `;
+
+            resultsGrid.appendChild(card);
+          });
+        };
+
+        const performSearch = async () => {
+          const params = new URLSearchParams();
+
+          if (nameInput.value.trim()) {
+            params.append('name', nameInput.value.trim());
+          }
+          if (genreSelect.value !== 'all') {
+            params.append('genre', genreSelect.value);
+          }
+          if (artistSelect.value !== 'all') {
+            params.append('artist', artistSelect.value);
+          }
+          if (yearSelect.value !== 'all') {
+            params.append('year', yearSelect.value);
+          }
+          if (activeFormat !== 'all') {
+            params.append('format', activeFormat);
+          }
+
+          const url = params.toString()
+            ? `${API_BASE}/api/products?${params.toString()}`
+            : `${API_BASE}/api/products`;
+          setMessage('Loading products...', '#333');
+
+          try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (!response.ok) {
+              setMessage(data.message || 'Search request failed.', '#b00020');
+              return;
+            }
+
+            renderProducts(data.data || []);
+          } catch (error) {
+            setMessage('Cannot connect to server. Please try again.', '#b00020');
+          }
+        };
+
+        const loadFilterOptions = async () => {
+          try {
+            const response = await fetch(`${API_BASE}/api/products`);
+            const data = await response.json();
+
+            if (!response.ok) {
+              return;
+            }
+
+            const products = data.data || [];
+            const genres = [...new Set(products.map((product) => product.genre))].sort();
+            const artists = [...new Set(products.map((product) => product.artist))].sort();
+            const years = [...new Set(products.map((product) => String(product.year)))].sort((a, b) => Number(b) - Number(a));
+
+            fillSelectWithValues(genreSelect, genres);
+            fillSelectWithValues(artistSelect, artists);
+            fillSelectWithValues(yearSelect, years);
+          } catch (error) {
+            setMessage('Could not load filter options from server.', '#b00020');
+          }
+        };
+
+        formatToggles.forEach((toggle) => {
+          toggle.addEventListener('click', () => {
+            formatToggles.forEach((item) => item.classList.remove('active'));
+            toggle.classList.add('active');
+            activeFormat = toggle.dataset.format;
+          });
         });
+
+        searchButton.addEventListener('click', performSearch);
+
+        clearButton.addEventListener('click', () => {
+          nameInput.value = '';
+          genreSelect.value = 'all';
+          artistSelect.value = 'all';
+          yearSelect.value = 'all';
+          activeFormat = 'all';
+          formatToggles.forEach((item) => item.classList.remove('active'));
+          if (formatToggles[0]) {
+            formatToggles[0].classList.add('active');
+          }
+          performSearch();
+        });
+
+        loadFilterOptions().then(performSearch);
       });
     </script>
 

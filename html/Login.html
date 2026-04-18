@@ -40,19 +40,19 @@
     </nav>
 
     <section class="login-section">
-      <form class="login-card" action="/login-cookie">
+      <form class="login-card" id="login-form">
         <img src="https://github.com/SupanutKlayhan/Trackzero/blob/main/element/Track%20Zero%20Logo.png?raw=true" alt="User Avatar" class="avatar">
         
         <h2 class="font-jersey25">Login</h2>
         
         <div class="form-group">
           <label>Username</label>
-          <input type="text" placeholder="Enter username" required>
+          <input id="username" name="username" type="text" placeholder="Enter username" required>
         </div>
         
         <div class="form-group">
           <label>Password</label>
-          <input type="password" placeholder="Enter password" required>
+          <input id="password" name="password" type="password" placeholder="Enter password" required>
         </div>
         
         <div class="remember-me">
@@ -61,6 +61,7 @@
         </div>
         
         <button type="submit" class="login-btn font-jersey25">Login</button>
+        <p id="login-message" style="margin-top: 12px; font-size: 14px;"></p>
       </form>
     </section>
 
@@ -74,5 +75,56 @@
     </footer>
 
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const API_BASE = window.TRACKZERO_API_BASE || 'http://localhost:3300';
+      const loginForm = document.getElementById('login-form');
+      const usernameInput = document.getElementById('username');
+      const passwordInput = document.getElementById('password');
+      const rememberInput = document.getElementById('remember');
+      const messageElement = document.getElementById('login-message');
+
+      loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        messageElement.textContent = 'Checking credentials...';
+        messageElement.style.color = '#333';
+
+        try {
+          const response = await fetch(`${API_BASE}/api/auth/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              username: usernameInput.value,
+              password: passwordInput.value,
+              rememberMe: rememberInput.checked
+            })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            messageElement.textContent = data.message || 'Login failed.';
+            messageElement.style.color = '#b00020';
+            return;
+          }
+
+          if (data.token) {
+            localStorage.setItem('trackzeroAdminToken', data.token);
+          }
+
+          messageElement.textContent = 'Login successful. Redirecting...';
+          messageElement.style.color = '#0a7d2a';
+          window.location.href = '/Manage-Products';
+        } catch (error) {
+          messageElement.textContent = 'Cannot connect to server. Please try again.';
+          messageElement.style.color = '#b00020';
+        }
+      });
+    });
+  </script>
 </body>
 </html>

@@ -41,29 +41,28 @@
 
     <section class="product-detail">
       <div class="detail-info">
-        <h2>Product name</h2>
+        <h2 id="detail-name">Loading...</h2>
         <ul class="meta-list">
-          <li>artist</li>
-          <li>genre</li>
-          <li>format</li>
-          <li>year</li>
+          <li id="detail-artist">Artist: -</li>
+          <li id="detail-genre">Genre: -</li>
+          <li id="detail-format">Format: -</li>
+          <li id="detail-year">Year: -</li>
         </ul>
         <div class="detail-actions">
           <button class="btn">Buy now</button>
           <button class="btn btn-outline">Remind me later</button>
         </div>
       </div>
-      <img class="main-product-img" src="./track zero (Copy) - Detail_files/32154abcf44e5fcd46c60a4e9e198eeeef9e9086.png" alt="Product Image">
+      <img id="detail-image" class="main-product-img" src="https://via.placeholder.com/600x400?text=Track+Zero" alt="Product Image">
     </section>
+
+    <p id="detail-message" style="text-align: center; margin: 8px 0;"></p>
 
     <section class="track-list-section">
       <div class="track-info">
         <h3>Track list</h3>
-        <ul class="tracks">
-          <li>track 1</li>
-          <li>track 2</li>
-          <li>track 3</li>
-          <li>track 4</li>
+        <ul class="tracks" id="track-list">
+          <li>Loading tracks...</li>
         </ul>
       </div>
       <img class="track-img" src="./track zero (Copy) - Detail_files/61ef12e5bf50c0309ce3bfbb6331a4fcb7f6a42f.png" alt="Track Illustration">
@@ -79,5 +78,86 @@
     </footer>
 
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const API_BASE = window.TRACKZERO_API_BASE || 'http://localhost:3300';
+      const nameElement = document.getElementById('detail-name');
+      const artistElement = document.getElementById('detail-artist');
+      const genreElement = document.getElementById('detail-genre');
+      const formatElement = document.getElementById('detail-format');
+      const yearElement = document.getElementById('detail-year');
+      const imageElement = document.getElementById('detail-image');
+      const trackListElement = document.getElementById('track-list');
+      const messageElement = document.getElementById('detail-message');
+
+      const setMessage = (text, color) => {
+        messageElement.textContent = text;
+        messageElement.style.color = color;
+      };
+
+      const renderProduct = (product) => {
+        nameElement.textContent = product.name;
+        artistElement.textContent = `Artist: ${product.artist}`;
+        genreElement.textContent = `Genre: ${product.genre}`;
+        formatElement.textContent = `Format: ${product.format}`;
+        yearElement.textContent = `Year: ${product.year}`;
+        imageElement.src = product.imageUrl || 'https://via.placeholder.com/600x400?text=Track+Zero';
+
+        trackListElement.innerHTML = '';
+        const tracks = Array.isArray(product.trackList) ? product.trackList : [];
+        if (tracks.length === 0) {
+          trackListElement.innerHTML = '<li>No tracks listed.</li>';
+        } else {
+          tracks.forEach((track) => {
+            const item = document.createElement('li');
+            item.textContent = track;
+            trackListElement.appendChild(item);
+          });
+        }
+
+        setMessage('Product details loaded.', '#0a7d2a');
+      };
+
+      const loadProduct = async () => {
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('id');
+
+        setMessage('Loading product details...', '#333');
+
+        try {
+          let response;
+          let data;
+
+          if (productId) {
+            response = await fetch(`${API_BASE}/api/products/${productId}`);
+            data = await response.json();
+
+            if (!response.ok) {
+              setMessage(data.message || 'Could not load product.', '#b00020');
+              return;
+            }
+
+            renderProduct(data.data);
+            return;
+          }
+
+          response = await fetch(`${API_BASE}/api/products`);
+          data = await response.json();
+
+          if (!response.ok || !data.data || data.data.length === 0) {
+            setMessage('No products available.', '#b00020');
+            return;
+          }
+
+          renderProduct(data.data[0]);
+        } catch (error) {
+          setMessage('Cannot connect to server. Please try again.', '#b00020');
+        }
+      };
+
+      loadProduct();
+    });
+  </script>
 </body>
 </html>

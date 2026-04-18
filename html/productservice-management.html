@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Track Zero - Product Management</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Jersey+15&family=Jersey+25&display=swap" rel="stylesheet">
-  
+
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  
+
   <div class="container">
-    
+
     <header class="top-header">
       <a href="/"><img src="https://github.com/SupanutKlayhan/Trackzero/blob/1c6ed1ecb49ad9a8818ad9dcbf260e382d5867a5/element/Track%20Zero%20Logo%202.png?raw=true" alt="Logo" width="82"></a>
       <h1 class="font-jersey25">TRACK <span>ZERO</span></h1>
@@ -36,11 +36,59 @@
     </nav>
 
     <section class="management-section">
-      
-      <div class="management-header">
+      <div class="management-header" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
         <h2>Product Management</h2>
-        <button class="btn font-jersey15">ADD NEW PRODUCT</button>
+        <button id="btn-add-new" class="btn font-jersey15" type="button">ADD NEW PRODUCT</button>
+        <button id="btn-logout" class="btn btn-outline font-jersey15" type="button">LOGOUT</button>
       </div>
+
+      <p id="management-message" style="margin: 8px 0 12px;"></p>
+
+      <form id="product-form" style="background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 14px; margin-bottom: 18px;">
+        <h3 id="form-title" style="margin: 0 0 10px;">Add Product</h3>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+          <div>
+            <label for="name">Name</label>
+            <input id="name" type="text" required style="width: 100%;">
+          </div>
+          <div>
+            <label for="artist">Artist</label>
+            <input id="artist" type="text" required style="width: 100%;">
+          </div>
+          <div>
+            <label for="genre">Genre</label>
+            <input id="genre" type="text" required style="width: 100%;">
+          </div>
+          <div>
+            <label for="format">Format</label>
+            <input id="format" type="text" required style="width: 100%;" placeholder="CD / Vinyl / Cassette / Digital Albums">
+          </div>
+          <div>
+            <label for="year">Year</label>
+            <input id="year" type="number" required style="width: 100%;" min="1900" max="2100">
+          </div>
+          <div>
+            <label for="imageUrl">Image URL</label>
+            <input id="imageUrl" type="url" style="width: 100%;">
+          </div>
+        </div>
+
+        <div style="margin-top: 10px;">
+          <label for="description">Description</label>
+          <textarea id="description" rows="3" style="width: 100%;"></textarea>
+        </div>
+
+        <div style="margin-top: 10px;">
+          <label for="trackList">Track List (comma separated)</label>
+          <input id="trackList" type="text" style="width: 100%;" placeholder="Track 1, Track 2, Track 3">
+        </div>
+
+        <div style="margin-top: 10px; display: flex; gap: 10px;">
+          <button class="btn" type="submit">SAVE</button>
+          <button id="btn-cancel-edit" class="btn btn-outline" type="button">CANCEL</button>
+        </div>
+      </form>
 
       <div class="table-container">
         <table class="admin-table">
@@ -53,36 +101,10 @@
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody>
-            
+          <tbody id="products-body">
             <tr>
-              <td class="product-cell">
-                <img src="./track zero (Copy) - Productservice management_files/46315b776968443cb9c2a269ecf7a13694dcc07a.png" alt="Album Cover">
-                <strong>This outstanding object</strong>
-              </td>
-              <td>The Artist Name</td>
-              <td>Vinyl</td>
-              <td>2024</td>
-              <td>
-                <a href="/detail-adminview" class="btn-text">Edit</a>
-                <button class="btn-text text-danger">Delete</button>
-              </td>
+              <td colspan="5">Loading products...</td>
             </tr>
-
-            <tr>
-              <td class="product-cell">
-                <img src="./track zero (Copy) - Productservice management_files/d1e67e956b7f18428709d5a71f418e1d47841d09.png" alt="Album Cover">
-                <strong>This astounding article</strong>
-              </td>
-              <td>Another Artist</td>
-              <td>CD</td>
-              <td>2023</td>
-              <td>
-                <a href="/detail-adminview" class="btn-text">Edit</a>
-                <button class="btn-text text-danger">Delete</button>
-              </td>
-            </tr>
-
           </tbody>
         </table>
       </div>
@@ -98,5 +120,290 @@
     </footer>
 
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const API_BASE = window.TRACKZERO_API_BASE || 'http://localhost:3300';
+      const TOKEN_KEY = 'trackzeroAdminToken';
+
+      const form = document.getElementById('product-form');
+      const formTitle = document.getElementById('form-title');
+      const addButton = document.getElementById('btn-add-new');
+      const cancelEditButton = document.getElementById('btn-cancel-edit');
+      const logoutButton = document.getElementById('btn-logout');
+      const productsBody = document.getElementById('products-body');
+      const messageElement = document.getElementById('management-message');
+
+      const nameInput = document.getElementById('name');
+      const artistInput = document.getElementById('artist');
+      const genreInput = document.getElementById('genre');
+      const formatInput = document.getElementById('format');
+      const yearInput = document.getElementById('year');
+      const imageUrlInput = document.getElementById('imageUrl');
+      const descriptionInput = document.getElementById('description');
+      const trackListInput = document.getElementById('trackList');
+
+      let editingId = null;
+      let cachedProducts = [];
+
+      const setMessage = (text, color) => {
+        messageElement.textContent = text;
+        messageElement.style.color = color;
+      };
+
+      const getAdminToken = () => localStorage.getItem(TOKEN_KEY) || '';
+
+      const getAdminHeaders = () => {
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+
+        const token = getAdminToken();
+        if (token) {
+          headers['X-Admin-Token'] = token;
+        }
+
+        return headers;
+      };
+
+      const resetForm = () => {
+        editingId = null;
+        formTitle.textContent = 'Add Product';
+        form.reset();
+      };
+
+      const fillForm = (product) => {
+        editingId = product.id;
+        formTitle.textContent = `Edit Product #${product.id}`;
+        nameInput.value = product.name || '';
+        artistInput.value = product.artist || '';
+        genreInput.value = product.genre || '';
+        formatInput.value = product.format || '';
+        yearInput.value = product.year || '';
+        imageUrlInput.value = product.imageUrl || '';
+        descriptionInput.value = product.description || '';
+        trackListInput.value = Array.isArray(product.trackList) ? product.trackList.join(', ') : '';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      const buildPayloadFromForm = () => ({
+        name: nameInput.value,
+        artist: artistInput.value,
+        genre: genreInput.value,
+        format: formatInput.value,
+        year: Number(yearInput.value),
+        imageUrl: imageUrlInput.value,
+        description: descriptionInput.value,
+        trackList: trackListInput.value
+      });
+
+      const renderProducts = (products) => {
+        productsBody.innerHTML = '';
+
+        if (products.length === 0) {
+          productsBody.innerHTML = '<tr><td colspan="5">No products found.</td></tr>';
+          return;
+        }
+
+        products.forEach((product) => {
+          const row = document.createElement('tr');
+          const image = product.imageUrl || 'https://via.placeholder.com/80x80?text=Album';
+
+          row.innerHTML = `
+            <td class="product-cell">
+              <img src="${image}" alt="Album Cover" style="width: 50px; height: 50px; object-fit: cover;">
+              <strong>${product.name}</strong>
+            </td>
+            <td>${product.artist}</td>
+            <td>${product.format}</td>
+            <td>${product.year}</td>
+            <td>
+              <button type="button" class="btn-text btn-edit-row" data-id="${product.id}">Edit</button>
+              <button type="button" class="btn-text text-danger btn-delete-row" data-id="${product.id}">Delete</button>
+            </td>
+          `;
+
+          productsBody.appendChild(row);
+        });
+      };
+
+      const loadProducts = async () => {
+        setMessage('Loading products...', '#333');
+
+        try {
+          const response = await fetch(`${API_BASE}/api/products`);
+          const data = await response.json();
+
+          if (!response.ok) {
+            setMessage(data.message || 'Could not load products.', '#b00020');
+            return;
+          }
+
+          cachedProducts = data.data || [];
+          renderProducts(cachedProducts);
+          setMessage(`Loaded ${cachedProducts.length} product(s).`, '#0a7d2a');
+        } catch (error) {
+          setMessage('Cannot connect to server.', '#b00020');
+        }
+      };
+
+      const checkAdminStatus = async () => {
+        const token = getAdminToken();
+
+        if (!token) {
+          setMessage('Please login as admin first. Redirecting...', '#b00020');
+          setTimeout(() => {
+            window.location.href = '/Login';
+          }, 1000);
+          return false;
+        }
+
+        try {
+          const response = await fetch(`${API_BASE}/api/auth/status`, {
+            headers: {
+              'X-Admin-Token': token
+            }
+          });
+
+          const data = await response.json();
+
+          if (!response.ok || !data.isAdmin) {
+            setMessage('Admin session expired. Please login again.', '#b00020');
+            localStorage.removeItem(TOKEN_KEY);
+            setTimeout(() => {
+              window.location.href = '/Login';
+            }, 1000);
+            return false;
+          }
+
+          return true;
+        } catch (error) {
+          setMessage('Cannot verify admin session.', '#b00020');
+          return false;
+        }
+      };
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const payload = buildPayloadFromForm();
+        const method = editingId ? 'PUT' : 'POST';
+        const url = editingId
+          ? `${API_BASE}/api/admin/products/${editingId}`
+          : `${API_BASE}/api/admin/products`;
+
+        setMessage('Saving product...', '#333');
+
+        try {
+          const response = await fetch(url, {
+            method,
+            headers: getAdminHeaders(),
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            setMessage(data.message || 'Save failed.', '#b00020');
+            if (response.status === 401) {
+              localStorage.removeItem(TOKEN_KEY);
+              setTimeout(() => {
+                window.location.href = '/Login';
+              }, 800);
+            }
+            return;
+          }
+
+          setMessage(data.message || 'Saved successfully.', '#0a7d2a');
+          resetForm();
+          await loadProducts();
+        } catch (error) {
+          setMessage('Cannot connect to server while saving.', '#b00020');
+        }
+      });
+
+      productsBody.addEventListener('click', async (event) => {
+        const target = event.target;
+        const productId = Number(target.dataset.id);
+
+        if (!productId) {
+          return;
+        }
+
+        if (target.classList.contains('btn-edit-row')) {
+          const found = cachedProducts.find((item) => item.id === productId);
+          if (found) {
+            fillForm(found);
+          }
+          return;
+        }
+
+        if (target.classList.contains('btn-delete-row')) {
+          const confirmed = window.confirm('Delete this product?');
+          if (!confirmed) {
+            return;
+          }
+
+          setMessage('Deleting product...', '#333');
+
+          try {
+            const response = await fetch(`${API_BASE}/api/admin/products/${productId}`, {
+              method: 'DELETE',
+              headers: getAdminHeaders()
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              setMessage(data.message || 'Delete failed.', '#b00020');
+              if (response.status === 401) {
+                localStorage.removeItem(TOKEN_KEY);
+                setTimeout(() => {
+                  window.location.href = '/Login';
+                }, 800);
+              }
+              return;
+            }
+
+            setMessage(data.message || 'Deleted successfully.', '#0a7d2a');
+            await loadProducts();
+          } catch (error) {
+            setMessage('Cannot connect to server while deleting.', '#b00020');
+          }
+        }
+      });
+
+      addButton.addEventListener('click', () => {
+        resetForm();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      cancelEditButton.addEventListener('click', () => {
+        resetForm();
+      });
+
+      logoutButton.addEventListener('click', async () => {
+        const token = getAdminToken();
+
+        try {
+          await fetch(`${API_BASE}/api/auth/logout`, {
+            method: 'POST',
+            headers: token ? { 'X-Admin-Token': token } : {}
+          });
+        } catch (error) {
+          // Ignore network errors during logout cleanup.
+        }
+
+        localStorage.removeItem(TOKEN_KEY);
+        window.location.href = '/Login';
+      });
+
+      checkAdminStatus().then((isAdmin) => {
+        if (isAdmin) {
+          loadProducts();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
