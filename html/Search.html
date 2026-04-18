@@ -19,18 +19,23 @@
       <h1 class="font-jersey25">TRACK <span>ZERO</span></h1>
     </header>
 
-    <nav class="main-nav">
-      <ul class="font-jersey15">
-        <li><a href="#">All Products</a></li>
-        <li><a href="#">CD</a></li>
-        <li><a href="#">Vinyl</a></li>
-        <li><a href="#">Cassette</a></li>
-        <li><a href="#">Digital Albums</a></li>
-      </ul>
-      <div class="nav-icons">
-        <a href="/search"><img src="https://raw.githubusercontent.com/SupanutKlayhan/Trackzero/1c6ed1ecb49ad9a8818ad9dcbf260e382d5867a5/element/search.svg" alt="Search"></a>
-        <a href="/login"><img src="https://raw.githubusercontent.com/SupanutKlayhan/Trackzero/1c6ed1ecb49ad9a8818ad9dcbf260e382d5867a5/element/login.svg" alt="Login"></a>
-        <a href="/team"><img src="https://raw.githubusercontent.com/SupanutKlayhan/Trackzero/1c6ed1ecb49ad9a8818ad9dcbf260e382d5867a5/element/groups.svg" alt="Team"></a>
+    <nav class="main-nav" data-nav-root>
+      <button class="nav-toggle font-jersey15" type="button" aria-expanded="false" aria-controls="site-nav-content">
+        MENU
+      </button>
+      <div class="nav-content" id="site-nav-content">
+        <ul class="font-jersey15">
+          <li><a href="#">All Products</a></li>
+          <li><a href="#">CD</a></li>
+          <li><a href="#">Vinyl</a></li>
+          <li><a href="#">Cassette</a></li>
+          <li><a href="#">Digital Albums</a></li>
+        </ul>
+        <div class="nav-icons">
+          <a href="/search"><img src="https://raw.githubusercontent.com/SupanutKlayhan/Trackzero/1c6ed1ecb49ad9a8818ad9dcbf260e382d5867a5/element/search.svg" alt="Search"></a>
+          <a href="/login"><img src="https://raw.githubusercontent.com/SupanutKlayhan/Trackzero/1c6ed1ecb49ad9a8818ad9dcbf260e382d5867a5/element/login.svg" alt="Login"></a>
+          <a href="/team"><img src="https://raw.githubusercontent.com/SupanutKlayhan/Trackzero/1c6ed1ecb49ad9a8818ad9dcbf260e382d5867a5/element/groups.svg" alt="Team"></a>
+        </div>
       </div>
     </nav>
 
@@ -62,22 +67,23 @@
               <option value="2024">2024</option>
             </select>
         </div>
-  </div>
-  
-  <div class="search-row" style="justify-content: space-between; align-items: center;">
-    <div class="format-toggles" id="format-filters">
-      <label style="font-weight: 600; margin-right: 8px;">Format:</label>
-      <span class="toggle active" data-format="all">All</span>
-      <span class="toggle" data-format="CD">CD</span>
-      <span class="toggle" data-format="Cassette">Cassette</span>
-      <span class="toggle" data-format="Vinyl">Vinyl</span>
-    </div>
-    <div class="search-actions">
-      <button id="btn-clear" class="btn-clear font-jersey15">CLEAR</button>
-      <button id="btn-search" class="btn-search font-jersey15">SEARCH</button>
-    </div>
-  </div>
-</section>
+      </div>
+      
+      <div class="search-row search-row-controls">
+        <div class="format-toggles">
+          <label class="format-label">Format:</label>
+          <span class="toggle active">All</span>
+          <span class="toggle">CD</span>
+          <span class="toggle">Cassette</span>
+          <span class="toggle">Vinyl</span>
+          <span class="toggle">Digital Albums</span>
+        </div>
+        <div class="search-actions">
+          <button class="btn-clear font-jersey15">CLEAR</button>
+          <button class="btn-search font-jersey15">SEARCH</button>
+        </div>
+      </div>
+    </section>
 
     <div class="marquee">
       <p>Search Result: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Search Result: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Search Result:</p>
